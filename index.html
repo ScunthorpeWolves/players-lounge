@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en" class="m-0 p-0 w-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>JLC Wolves U16 - Players' Lounge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: {
+              DEFAULT: '#ddaf6f',
+              dark: '#b88846',
+              light: '#f3dfb9',
+              glow: 'rgba(221, 175, 111, 0.25)'
+            },
+            obsidian: {
+              DEFAULT: '#05070c',
+              surface: '#0b0f17',
+              card: '#101622',
+              border: '#1d2636'
+            }
+          },
+          fontFamily: {
+            heading: ['Outfit', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html, body { 
+      margin: 0 !important; 
+      padding: 0 !important; 
+      width: 100% !important;
+      background-color: #05070c; 
+      color: #f1f5f9; 
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+
+    @media screen and (max-width: 768px) {
+      input, select, textarea {
+        font-size: 16px !important;
+      }
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #070a12; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #1d2636; border-radius: 4px; }
+    
+    .gold-glow {
+      border-color: rgba(221, 175, 111, 0.85) !important;
+      box-shadow: 0 0 25px rgba(221, 175, 111, 0.22), inset 0 0 15px rgba(221, 175, 111, 0.08) !important;
+    }
+
+    .urgent-glow {
+      border-color: rgba(239, 68, 68, 0.85) !important;
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.25), inset 0 0 15px rgba(239, 68, 68, 0.1) !important;
+    }
+
+    .portrait-card {
+      width: 100%;
+      max-width: 480px;
+      height: clamp(460px, 75vh, 560px);
+    }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col custom-scrollbar select-none m-0 p-0 w-full">
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed top-3 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none w-11/12 max-w-xs"></div>
+
+  <!-- TOP HEADER -->
+  <header class="bg-obsidian-surface border-b border-obsidian-border/80 sticky top-0 z-30 shadow-2xl backdrop-blur-md bg-opacity-95 w-full m-0">
+    <div class="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-2">
+      
+      <!-- Team Logo & Title -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-gold-dark to-gold flex items-center justify-center text-slate-950 font-heading font-extrabold text-xl shadow-lg shadow-gold/20 shrink-0">
+          <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="font-heading text-xl sm:text-2xl font-bold tracking-wider leading-none text-white uppercase">
+            PLAYERS' <span class="text-gold">LOUNGE</span>
+          </h1>
+          <p id="userStatusLabel" class="text-[10px] sm:text-xs text-zinc-400 font-semibold tracking-wider uppercase mt-0.5">JLC Wolves U16 Boys</p>
+        </div>
+      </div>
+
+      <!-- Header Action Controls -->
+      <div class="flex items-center gap-1.5">
+        <button onclick="forceRefreshData()" class="bg-obsidian-card active:bg-zinc-800 text-zinc-300 p-2 rounded-xl text-xs font-semibold border border-obsidian-border transition shadow flex items-center justify-center h-9 w-9" title="Sync Live Data">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        </button>
+
+        <button onclick="openIdentityModal()" class="bg-obsidian-card active:bg-zinc-800 text-zinc-300 px-3 py-2 rounded-xl text-xs font-semibold border border-obsidian-border transition shadow flex items-center gap-1.5 h-9">
+          <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+          <span>User</span>
+        </button>
+
+        <button id="coachAdminBtn" onclick="openCoachPanel()" class="hidden bg-gold active:bg-gold-dark text-slate-950 font-extrabold px-3 py-2 rounded-xl text-xs transition shadow-lg shadow-gold/20 flex items-center gap-1.5 h-9">
+          <svg class="w-3.5 h-3.5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          <span>Coach</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN BOARD CONTENT -->
+  <main class="w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-4 flex-1 space-y-3 sm:space-y-4">
+
+    <!-- NEXT GAME BANNER -->
+    <div id="nextGameBanner" class="bg-gradient-to-r from-obsidian-surface via-obsidian-card to-obsidian-surface border border-gold/30 rounded-2xl p-3.5 sm:p-5 shadow-2xl relative overflow-hidden">
+      <div class="absolute -right-8 -bottom-8 w-36 h-36 bg-gold/10 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <div class="flex flex-col gap-2 relative z-10">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-gold text-slate-950 shadow-sm">
+              NEXT MATCH
+            </span>
+            <span id="nextGameCountdown" class="hidden px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-sky-500 text-slate-950 shadow-sm">
+            </span>
+          </div>
+          <div class="text-xs sm:text-sm font-bold text-white font-mono flex items-center gap-1.5">
+            <span id="nextGameDate">Sat, Oct 24</span>
+            <span>&bull;</span>
+            <span id="nextGameTime" class="text-gold">11:00 AM</span>
+          </div>
+        </div>
+
+        <div>
+          <h2 id="nextGameOpponent" class="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold tracking-wider text-white uppercase leading-none">
+            VS SCUNTHORPE KNIGHTS
+          </h2>
+          <div class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gold mt-1.5">
+            <svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span id="nextGameVenue" class="text-zinc-200 truncate">Scunthorpe Sports Hall (DN16 1AA)</span>
+          </div>
+          <p id="nextGameNotes" class="text-xs sm:text-sm text-zinc-400 mt-1 leading-relaxed">Arrive 45 mins prior for warm-ups. Full blue kit required.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- WRAPPING CATEGORY TAB BAR & SEARCH -->
+    <div class="bg-obsidian-card border border-obsidian-border rounded-2xl p-2.5 sm:p-3 shadow-xl space-y-2.5">
+      
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <!-- Category Color Pills -->
+        <div class="flex flex-wrap items-center gap-1.5 py-0.5">
+          <button onclick="setFilter('all')" id="filter-all" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider bg-gold text-slate-950 shadow-md h-9">ALL</button>
+          <button onclick="setFilter('General')" id="filter-General" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider bg-obsidian-surface text-amber-400/80 hover:text-amber-300 border border-amber-900/40 h-9">GENERAL</button>
+          <button onclick="setFilter('Stats')" id="filter-Stats" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider bg-obsidian-surface text-cyan-400/80 hover:text-cyan-300 border border-cyan-900/40 h-9">STATS</button>
+          <button onclick="setFilter('Film')" id="filter-Film" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider bg-obsidian-surface text-purple-400/80 hover:text-purple-300 border border-purple-900/40 h-9">FILM</button>
+          <button onclick="setFilter('Culture')" id="filter-Culture" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider bg-obsidian-surface text-emerald-400/80 hover:text-emerald-300 border border-emerald-900/40 h-9">CULTURE</button>
+          <button onclick="setFilter('Feedback')" id="filter-Feedback" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition uppercase tracking-wider bg-obsidian-surface text-rose-400/80 hover:text-rose-300 border border-rose-900/40 h-9">FEEDBACK</button>
+        </div>
+
+        <div class="flex items-center gap-2 w-full md:w-auto">
+          <input type="text" id="searchInput" oninput="renderPosts()" placeholder="Search Lounge notices..." class="w-full md:w-64 bg-obsidian border border-obsidian-border rounded-xl px-3 py-2 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-gold h-10">
+          
+          <button id="unseenOnlyBtn" onclick="toggleUnseenOnly()" class="bg-obsidian-surface border border-obsidian-border text-zinc-400 px-3.5 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider whitespace-nowrap transition h-10">
+            Unseen
+          </button>
+
+          <button id="viewModeBtn" onclick="toggleViewMode()" class="bg-obsidian-surface border border-obsidian-border text-zinc-300 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center justify-center gap-1 h-10" title="Toggle Carousel / Grid View">
+            <span id="viewModeIcon">
+              <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            </span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MAIN DISPLAY AREA (CAROUSEL / GRID) -->
+    <div id="displayArea" class="flex flex-col items-center justify-center min-h-[480px] py-1 w-full">
+      <div id="loadingSkeleton" class="portrait-card bg-obsidian-card border border-obsidian-border rounded-3xl p-5 animate-pulse flex flex-col justify-between space-y-4">
+        <div class="flex justify-between items-center">
+          <div class="h-5 bg-obsidian-surface border border-obsidian-border rounded-full w-24"></div>
+          <div class="h-4 bg-obsidian-surface rounded w-16"></div>
+        </div>
+        <div class="space-y-3 flex-1 pt-2">
+          <div class="h-6 bg-obsidian-surface rounded w-3/4"></div>
+          <div class="h-4 bg-obsidian-surface rounded w-full"></div>
+          <div class="h-4 bg-obsidian-surface rounded w-5/6"></div>
+          <div class="h-28 bg-obsidian-surface border border-obsidian-border rounded-2xl w-full"></div>
+        </div>
+        <div class="space-y-2 pt-2 border-t border-obsidian-border">
+          <div class="h-3 bg-obsidian-surface rounded w-full"></div>
+          <div class="h-10 bg-obsidian-surface rounded-xl w-full"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- IDENTITY SELECTION MODAL (TOP-ALIGNED FOR GOOGLE SITES) -->
+  <div id="identityModal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-start justify-center pt-3 sm:pt-6 px-2 sm:px-4 overflow-y-auto custom-scrollbar">
+    <div class="bg-obsidian-card border border-obsidian-border rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4 mb-6">
+      
+      <div class="text-center space-y-1">
+        <div class="w-12 h-12 bg-gold/10 border border-gold/30 rounded-xl flex items-center justify-center mx-auto shadow-inner">
+          <svg class="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        </div>
+        <h2 class="font-heading text-2xl font-bold tracking-wider text-white uppercase">Players' Lounge</h2>
+        <p class="text-xs text-zinc-400">Select your role to enter the team hub</p>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        
+        <div class="bg-obsidian border border-obsidian-border/80 rounded-2xl p-3.5 space-y-2.5">
+          <label class="block font-bold text-gold uppercase tracking-wider text-[11px]">I am a Player</label>
+          <select id="identityPlayerSelect" onchange="onPlayerSelectChange()" class="w-full bg-obsidian-surface border border-obsidian-border rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-gold h-11">
+            <option value="">-- Select Your Name --</option>
+          </select>
+
+          <div id="playerPassContainer" class="hidden space-y-2 pt-1">
+            <label class="block font-semibold text-zinc-400 text-[10px]">Enter Password</label>
+            <input type="password" id="identityPlayerPass" placeholder="Given to you by your coach" class="w-full bg-obsidian-surface border border-obsidian-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold h-10">
+            <button onclick="submitPlayerIdentity()" class="w-full bg-gold active:bg-gold-dark text-slate-950 font-extrabold py-3 rounded-xl uppercase tracking-wider transition shadow h-11 text-xs">
+              Enter Players' Lounge
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-obsidian border border-obsidian-border/80 rounded-2xl p-3.5 space-y-2.5">
+          <div class="font-bold text-zinc-200">Parent / Guardian View</div>
+          <div id="parentPassContainer" class="hidden space-y-2">
+            <input type="password" id="identityParentPass" placeholder="Enter Password" class="w-full bg-obsidian-surface border border-obsidian-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold h-10">
+            <button onclick="submitParentIdentity()" class="w-full bg-zinc-800 active:bg-zinc-700 text-white font-bold py-2.5 rounded-xl uppercase tracking-wider transition h-10">
+              Authenticate Parent View
+            </button>
+          </div>
+          <button id="showParentPassBtn" onclick="toggleParentPassInput()" class="w-full bg-obsidian-surface active:bg-zinc-800 text-zinc-400 py-2.5 rounded-xl font-semibold border border-obsidian-border transition h-10">
+            Login as Parent
+          </button>
+        </div>
+
+        <div class="bg-obsidian border border-obsidian-border/80 rounded-2xl p-3.5 space-y-2.5">
+          <div class="font-bold text-zinc-200">Coach / Admin</div>
+          <div id="coachPassContainer" class="hidden space-y-2">
+            <input type="password" id="identityCoachPass" placeholder="Enter Password" class="w-full bg-obsidian-surface border border-obsidian-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold h-10">
+            <button onclick="submitCoachIdentity()" class="w-full bg-zinc-800 active:bg-zinc-700 text-white font-bold py-2.5 rounded-xl uppercase tracking-wider transition h-10">
+              Authenticate
+            </button>
+          </div>
+          <button id="showCoachPassBtn" onclick="toggleCoachPassInput()" class="w-full bg-obsidian-surface active:bg-zinc-800 text-zinc-400 py-2.5 rounded-xl font-semibold border border-obsidian-border transition h-10">
+            Login as Coach
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COACH DASHBOARD MODAL -->
+  <div id="coachModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-start justify-center pt-3 sm:pt-6 px-2 sm:px-4 overflow-y-auto custom-scrollbar">
+    <div class="bg-obsidian-card border border-obsidian-border rounded-2xl max-w-2xl w-full flex flex-col shadow-2xl overflow-hidden mb-6">
+      
+      <div class="p-3.5 border-b border-obsidian-border flex items-center justify-between bg-obsidian shrink-0">
+        <h3 class="font-heading text-xl font-bold tracking-wider text-gold uppercase">Coach Controls</h3>
+        <button onclick="closeCoachPanel()" class="text-zinc-400 active:text-white font-bold text-xl px-3 py-1">✕</button>
+      </div>
+
+      <div class="p-4 overflow-y-auto space-y-4 custom-scrollbar text-xs">
+        
+        <div class="bg-obsidian border border-obsidian-border rounded-2xl p-3.5 space-y-2.5">
+          <div class="font-bold text-gold uppercase tracking-wider text-[11px]">Update Next Game Banner</div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div>
+              <label class="block font-semibold text-zinc-400 mb-1 text-[11px]">Opponent Name</label>
+              <input type="text" id="editOpponent" placeholder="e.g. Scunthorpe Knights" class="w-full bg-obsidian-surface border border-obsidian-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold h-10">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-400 mb-1 text-[11px]">Venue / Location</label>
+              <input type="text" id="editVenue" placeholder="e.g. Scunthorpe Sports Hall" class="w-full bg-obsidian-surface border border-obsidian-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold h-10">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-400 mb-1 text-[11px]">Date</label>
+              <input type="text" id="editGameDate" placeholder="e.g. Sat, Oct 24" class="w-full bg-obsidian-surface border border-obsidian-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold h-10">
+            </div>
+            <div>
+              <label class="block font-semibold text-zinc-400 mb-1 text-[11px]">Tip-Off Time</label>
+              <input type="text" id="editGameTime" placeholder="e.g. 11:00 AM" class="w-full bg-obsidian-surface border border-obsidian-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold h-10">
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-zinc-400 mb-1 text-[11px]">Game Notes</label>
+            <input type="text" id="editGameNotes" placeholder="e.g. Arrive 45 mins prior for warm-ups." class="w-full bg-obsidian-surface border border-obsidian-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold h-10">
+          </div>
+
+          <button onclick="saveNextGameInfo()" class="w-full bg-gold active:bg-gold-dark text-slate-950 font-extrabold py-2.5 rounded-xl transition uppercase tracking-wider h-11 text-xs">
+            Update Game Banner
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <button onclick="openNewPostModal()" class="bg-gold active:bg-gold-dark text-slate-950 font-extrabold p-3 rounded-2xl uppercase tracking-wider transition flex items-center justify-center gap-2 shadow h-11 text-xs">
+            <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+            <span>Add New Team Post</span>
+          </button>
+          <button onclick="openComplianceModal()" class="bg-obsidian-surface active:bg-zinc-800 text-zinc-200 font-bold p-3 rounded-2xl border border-obsidian-border transition flex items-center justify-center gap-2 h-11 text-xs">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+            <span>View Reaction Matrix</span>
+          </button>
+        </div>
+
+        <div class="bg-obsidian border border-obsidian-border rounded-2xl p-3.5 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <label class="font-bold text-zinc-200 uppercase tracking-wider text-[11px]">Google Sheet Web App URL</label>
+            <span id="syncStatusBadge" class="text-[9px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono">Live Sync</span>
+          </div>
+          <div class="flex gap-2">
+            <input type="url" id="googleSheetUrlInput" class="flex-1 bg-obsidian-surface border border-obsidian-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold h-10">
+            <button onclick="saveGoogleSheetUrl()" class="bg-zinc-800 active:bg-zinc-700 text-zinc-200 font-bold px-4 py-2 rounded-xl transition border border-zinc-700 h-10">Save</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NEW / EDIT POST CREATOR MODAL -->
+  <div id="newPostModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-start justify-center pt-3 sm:pt-6 px-2 sm:px-4 overflow-y-auto custom-scrollbar">
+    <div class="bg-obsidian-card border border-obsidian-border rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-4 mb-6">
+      <div class="flex items-center justify-between border-b border-obsidian-border pb-3">
+        <h3 id="modalTitle" class="font-heading text-xl font-bold tracking-wider text-white uppercase">Create New Notice</h3>
+        <button onclick="closeNewPostModal()" class="text-zinc-400 active:text-white font-bold text-xl px-3">✕</button>
+      </div>
+
+      <form id="newPostForm" onsubmit="handleSavePost(event)" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-bold text-zinc-300 mb-1">Post Title</label>
+          <input type="text" id="postTitle" required placeholder="e.g. Saturday League Match vs Knights" class="w-full bg-obsidian border border-obsidian-border rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-gold h-11">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-zinc-300 mb-1.5">Topics / Categories (Select multiple)</label>
+            <div id="categoryPickerContainer" class="flex flex-wrap gap-1.5">
+              <button type="button" onclick="toggleModalCategory('General')" id="catBtn-General" class="modal-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold border transition">GENERAL</button>
+              <button type="button" onclick="toggleModalCategory('Stats')" id="catBtn-Stats" class="modal-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold border transition">STATS</button>
+              <button type="button" onclick="toggleModalCategory('Film')" id="catBtn-Film" class="modal-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold border transition">FILM</button>
+              <button type="button" onclick="toggleModalCategory('Culture')" id="catBtn-Culture" class="modal-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold border transition">CULTURE</button>
+              <button type="button" onclick="toggleModalCategory('Feedback')" id="catBtn-Feedback" class="modal-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold border transition">FEEDBACK</button>
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold text-zinc-300 mb-1">Urgency</label>
+            <select id="postUrgency" class="w-full bg-obsidian border border-obsidian-border rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-gold h-11">
+              <option value="Normal">Normal</option>
+              <option value="Important">Important</option>
+              <option value="Urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- TARGET AUDIENCE / SPECIFIC PLAYER ASSIGNMENT -->
+        <div class="bg-obsidian border border-obsidian-border rounded-2xl p-3 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <label class="font-bold text-gold uppercase tracking-wider text-[11px]">Target Audience</label>
+            <div class="flex gap-1 bg-obsidian-surface p-1 rounded-xl border border-obsidian-border">
+              <button type="button" onclick="setTargetMode('all')" id="targetModeAllBtn" class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition bg-gold text-slate-950">All Players</button>
+              <button type="button" onclick="setTargetMode('specific')" id="targetModeSpecificBtn" class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition text-zinc-400">Specific Players</button>
+            </div>
+          </div>
+
+          <div id="targetPlayersContainer" class="hidden pt-1 border-t border-obsidian-border/60">
+            <div class="text-[10px] text-zinc-400 mb-2 font-semibold">Select players who should see this feedback:</div>
+            <div id="playerPillsGrid" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto custom-scrollbar p-1">
+              <!-- Dynamically populated player pills -->
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-zinc-300 mb-1">Text Content</label>
+          <textarea id="postContent" required rows="3" placeholder="Write full details for players..." class="w-full bg-obsidian border border-obsidian-border rounded-xl p-3 text-white focus:outline-none focus:border-gold"></textarea>
+        </div>
+
+        <div class="space-y-2.5 pt-2 border-t border-obsidian-border">
+          <div class="font-bold text-gold text-[11px] uppercase tracking-wider">Attachments (Optional)</div>
+          
+          <div>
+            <input type="url" id="postWebLink" placeholder="External Web Link URL" class="w-full bg-obsidian border border-obsidian-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold h-10">
+          </div>
+
+          <div>
+            <input type="url" id="postDocLink" placeholder="Google Drive / Document Link" class="w-full bg-obsidian border border-obsidian-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold h-10">
+          </div>
+
+          <div>
+            <input type="url" id="postImgLink" placeholder="Image URL or Drive Image Link" class="w-full bg-obsidian border border-obsidian-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold h-10">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeNewPostModal()" class="flex-1 bg-obsidian-surface text-zinc-300 py-3 rounded-xl font-bold h-11 border border-obsidian-border">Cancel</button>
+          <button type="submit" id="savePostBtn" class="flex-1 bg-gold active:bg-gold-dark text-slate-950 py-3 rounded-xl font-extrabold uppercase tracking-wider h-11">Publish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CUSTOM IN-APP DELETE CONFIRMATION MODAL -->
+  <div id="deleteConfirmModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-start justify-center pt-12 px-4">
+    <div class="bg-obsidian-card border border-red-900/80 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 text-center">
+      <div class="w-10 h-10 bg-red-950/80 border border-red-800 text-red-400 rounded-full flex items-center justify-center mx-auto">
+        <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+      </div>
+      <div>
+        <h3 class="font-heading text-xl font-bold text-white uppercase tracking-wider">Delete Notice?</h3>
+        <p class="text-xs text-zinc-400 mt-1">This will permanently delete this post for all players.</p>
+      </div>
+      <div class="flex items-center gap-2 pt-2">
+        <button onclick="closeDeleteModal()" class="flex-1 bg-obsidian-surface active:bg-zinc-800 text-zinc-300 font-semibold py-3 rounded-xl text-xs transition border border-obsidian-border h-11">
+          Cancel
+        </button>
+        <button id="confirmDeleteBtn" class="flex-1 bg-red-600 active:bg-red-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-red-600/30 h-11">
+          Delete Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYER REACTION MATRIX MODAL -->
+  <div id="complianceModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-start justify-center pt-3 sm:pt-6 px-2 sm:px-4 overflow-y-auto custom-scrollbar">
+    <div class="bg-obsidian-card border border-obsidian-border rounded-2xl max-w-2xl w-full flex flex-col shadow-2xl overflow-hidden mb-6">
+      <div class="p-3.5 border-b border-obsidian-border flex items-center justify-between bg-obsidian shrink-0">
+        <h3 class="font-heading text-xl font-bold tracking-wider text-gold uppercase">Player Reaction Matrix</h3>
+        <button onclick="closeComplianceModal()" class="text-zinc-400 active:text-white font-bold text-xl px-3">✕</button>
+      </div>
+      <div class="p-3 overflow-x-auto flex-1 custom-scrollbar">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-obsidian-border text-zinc-500 font-bold uppercase tracking-wider">
+              <th class="p-2.5">Player Name</th>
+              <th class="p-2.5 text-center">Seen</th>
+              <th class="p-2.5 text-center">%</th>
+              <th class="p-2.5">Status</th>
+            </tr>
+          </thead>
+          <tbody id="complianceTableBody" class="divide-y divide-obsidian-border text-zinc-200">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL IMAGE PREVIEW MODAL -->
+  <div id="imagePreviewModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-4 cursor-pointer" onclick="closeImageModal()">
+    <img id="imagePreviewImg" src="" class="max-w-full max-h-[85dvh] rounded-2xl shadow-2xl border border-obsidian-border">
+  </div>
+
+  <!-- APPLICATION LOGIC -->
+  <script>
+    const PLAYERS = [
+      "Opi Etteh", "Alfie Baker", "Laurence Evangelista", "Tomas Stackevicius",
+      "Jai Bhullar", "Richard Adewunmi", "Finley Smith", "Louix Turner",
+      "Oliver Geddes", "Will Usher", "Kajetan Smolinski", "Charlie Cockram",
+      "Harry Scott-Ward", "Cyprian Kaluga", "Thomas Kaluga", "Kuzey Erol", "Edward Ogunkinle"
+    ].sort();
+
+    const VALID_CATEGORIES = ["General", "Stats", "Film", "Culture", "Feedback"];
+    
+    // UPDATED LIVE DEPLOYMENT URL
+    const DEFAULT_GSHEET_URL = "https://script.google.com/macros/s/AKfycbyJKTH0YGIFR2yDGa0C29bq0wzM6ie6fY3Y_GBsv8WY_nZ0AtEms0bWVmGfD5Oc8pMh5Q/exec";
+
+    let nextGameInfo = {
+      opponent: "VS SCUNTHORPE KNIGHTS",
+      venue: "Scunthorpe Sports Hall (DN16 1AA)",
+      date: "Sat, Oct 24",
+      time: "11:00 AM",
+      notes: "Arrive 45 mins prior for warm-ups. Full blue kit required."
+    };
+
+    const INITIAL_POSTS = [
+      {
+        id: "post-1",
+        title: "Welcome to the Players' Lounge",
+        category: ["General"],
+        urgency: "Normal",
+        content: "Check in regularly for game updates, film breakdown, stats, and tactical playbook notes. Tap 'Mark as Seen' whenever you review a post!",
+        webLink: "",
+        docLink: "",
+        imgLink: "",
+        date: new Date().toISOString().split('T')[0],
+        seenBy: [],
+        targetPlayers: [],
+        comments: []
+      }
+    ];
+
+    let posts = [];
+    let currentProfile = { role: null, name: null };
+    let currentFilter = 'all';
+    let unseenOnly = false;
+    let editingPostId = null;
+    let postToDeleteId = null;
+    let selectedModalCategories = ['General'];
+    let selectedTargetPlayers = [];
+    
+    // Ensure default deployment URL is prioritized
+    let googleSheetUrl = localStorage.getItem('jlc_wolves_gsheet_url') || DEFAULT_GSHEET_URL;
+
+    let viewMode = 'carousel';
+    let currentCarouselIndex = 0;
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      populatePlayerDropdown();
+      checkSyncStatus();
+      loadNextGameInfo();
+      loadData();
+      openIdentityModal();
+      setupKeyboardControls();
+    });
+
+    function setupKeyboardControls() {
+      document.addEventListener('keydown', (e) => {
+        if (viewMode !== 'carousel') return;
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+        
+        if (e.key === 'ArrowLeft') navigateCarousel(-1);
+        if (e.key === 'ArrowRight') navigateCarousel(1);
+      });
+    }
+
+    function showToast(msg) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = "bg-obsidian-surface/95 border border-gold/80 text-white px-3.5 py-2.5 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2 transform transition-all duration-300 pointer-events-auto backdrop-blur-md";
+      toast.innerHTML = `<svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> <span>${msg}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 2500);
+    }
+
+    function getCategoryArray(catVal) {
+      if (Array.isArray(catVal)) return catVal;
+      if (!catVal) return ['General'];
+      const arr = String(catVal).split(',').map(s => s.trim()).filter(Boolean);
+      return arr.length > 0 ? arr : ['General'];
+    }
+
+    function getPlayerSurname(fullName) {
+      if (!fullName) return '';
+      const parts = fullName.trim().split(' ');
+      return parts.slice(1).join(' ').trim();
+    }
+
+    function getCategoryBadgeClass(catName) {
+      switch(catName) {
+        case 'Stats': return 'bg-cyan-950/80 text-cyan-300 border-cyan-800/80';
+        case 'Film': return 'bg-purple-950/80 text-purple-300 border-purple-800/80';
+        case 'Culture': return 'bg-emerald-950/80 text-emerald-300 border-emerald-800/80';
+        case 'Feedback': return 'bg-rose-950/80 text-rose-300 border-rose-800/80';
+        default: return 'bg-amber-950/80 text-gold border-gold/50';
+      }
+    }
+
+    function onPlayerSelectChange() {
+      const name = document.getElementById('identityPlayerSelect').value;
+      const passContainer = document.getElementById('playerPassContainer');
+      if (name) {
+        passContainer.classList.remove('hidden');
+      } else {
+        passContainer.classList.add('hidden');
+      }
+    }
+
+    function loadNextGameInfo() {
+      const savedGame = localStorage.getItem('jlc_wolves_next_game');
+      if (savedGame) nextGameInfo = JSON.parse(savedGame);
+      renderNextGameBanner();
+    }
+
+    function parseFixtureDate(dateVal) {
+      if (!dateVal) return '';
+      let str = String(dateVal).trim();
+      if (str.includes('GMT') || str.includes('00:00:00') || str.includes('T00:00:00')) {
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) {
+          const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
+        }
+      }
+      return str;
+    }
+
+    function parseFixtureTime(timeVal) {
+      if (!timeVal) return 'TBD';
+      let str = String(timeVal).trim();
+      if (str.includes('1899') || str.includes('GMT') || str.includes('T')) {
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) {
+          let hours = d.getHours();
+          let minutes = d.getMinutes().toString().padStart(2, '0');
+          let ampm = hours >= 12 ? 'PM' : 'AM';
+          let displayHours = hours % 12 || 12;
+          return `${displayHours}:${minutes} ${ampm}`;
+        }
+      }
+      return str;
+    }
+
+    function renderNextGameBanner() {
+      const dateEl = document.getElementById('nextGameDate');
+      const timeEl = document.getElementById('nextGameTime');
+
+      if (dateEl) dateEl.innerText = parseFixtureDate(nextGameInfo.date);
+      if (timeEl) timeEl.innerText = parseFixtureTime(nextGameInfo.time);
+
+      document.getElementById('nextGameOpponent').innerText = nextGameInfo.opponent;
+      document.getElementById('nextGameVenue').innerText = nextGameInfo.venue || "Location TBD";
+      document.getElementById('nextGameNotes').innerText = nextGameInfo.notes;
+
+      document.getElementById('editOpponent').value = nextGameInfo.opponent;
+      document.getElementById('editVenue').value = nextGameInfo.venue || "";
+      document.getElementById('editGameDate').value = nextGameInfo.date;
+      document.getElementById('editGameTime').value = nextGameInfo.time;
+      document.getElementById('editGameNotes').value = nextGameInfo.notes;
+
+      updateMatchCountdown();
+    }
+
+    function saveNextGameInfo() {
+      nextGameInfo = {
+        opponent: document.getElementById('editOpponent').value,
+        venue: document.getElementById('editVenue').value,
+        date: document.getElementById('editGameDate').value,
+        time: document.getElementById('editGameTime').value,
+        notes: document.getElementById('editGameNotes').value
+      };
+      localStorage.setItem('jlc_wolves_next_game', JSON.stringify(nextGameInfo));
+      renderNextGameBanner();
+      saveData();
+      showToast('Game banner updated!');
+    }
+
+    function updateMatchCountdown() {
+      const badge = document.getElementById('nextGameCountdown');
+      if (!badge) return;
+
+      if (!nextGameInfo.date) {
+        badge.classList.add('hidden');
+        return;
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let gDate = new Date(nextGameInfo.date);
+      if (isNaN(gDate.getTime())) {
+        gDate = new Date(`${nextGameInfo.date} ${today.getFullYear()}`);
+      }
+
+      if (isNaN(gDate.getTime())) {
+        badge.classList.add('hidden');
+        return;
+      }
+
+      gDate.setHours(0, 0, 0, 0);
+      const diffTime = gDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      badge.classList.remove('hidden');
+
+      if (diffDays === 0) {
+        badge.innerText = 'MATCHDAY TODAY';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-red-600 text-white animate-pulse shadow-sm';
+      } else if (diffDays === 1) {
+        badge.innerText = 'TOMORROW';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-amber-500 text-slate-950 shadow-sm';
+      } else if (diffDays > 1) {
+        badge.innerText = `IN ${diffDays} DAYS`;
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-sky-500 text-slate-950 shadow-sm';
+      } else {
+        badge.innerText = 'PAST MATCH';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-zinc-800 text-zinc-400 border border-zinc-700 shadow-sm';
+      }
+    }
+
+    function forceRefreshData() {
+      showToast("Syncing live data from Sheet...");
+      loadData(true);
+    }
+
+    function loadData(isForced = false) {
+      const savedPosts = localStorage.getItem('jlc_wolves_posts');
+      posts = savedPosts ? JSON.parse(savedPosts) : INITIAL_POSTS;
+      renderPosts();
+
+      if (googleSheetUrl) {
+        const cacheBusterUrl = googleSheetUrl + (googleSheetUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
+
+        fetch(cacheBusterUrl)
+          .then(res => res.json())
+          .then(data => {
+            if (data) {
+              if (data.nextGame && typeof data.nextGame === 'object' && data.nextGame.opponent) {
+                nextGameInfo = {
+                  opponent: String(data.nextGame.opponent || ''),
+                  venue: String(data.nextGame.venue || ''),
+                  date: parseFixtureDate(data.nextGame.date),
+                  time: parseFixtureTime(data.nextGame.time),
+                  notes: String(data.nextGame.notes || '')
+                };
+                localStorage.setItem('jlc_wolves_next_game', JSON.stringify(nextGameInfo));
+                renderNextGameBanner();
+              }
+
+              if (data.posts && Array.isArray(data.posts) && data.posts.length > 0) {
+                posts = data.posts.map(p => ({
+                  id: String(p.id || ('post-' + Date.now())),
+                  title: String(p.title || ''),
+                  category: getCategoryArray(p.category),
+                  urgency: String(p.urgency || 'Normal'),
+                  content: String(p.content || ''),
+                  webLink: String(p.webLink || ''),
+                  docLink: String(p.docLink || ''),
+                  imgLink: String(p.imgLink || ''),
+                  date: String(p.date || new Date().toISOString().split('T')[0]),
+                  seenBy: Array.isArray(p.seenBy) ? p.seenBy : [],
+                  targetPlayers: Array.isArray(p.targetPlayers) ? p.targetPlayers : [],
+                  comments: Array.isArray(p.comments) ? p.comments : []
+                }));
+                localStorage.setItem('jlc_wolves_posts', JSON.stringify(posts));
+                renderPosts();
+              }
+
+              if (isForced) showToast("Live Sync Complete!");
+            }
+          })
+          .catch(err => {
+            console.error('Fetch error:', err);
+            showToast("Connection Error - Check Deployment");
+          });
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('jlc_wolves_posts', JSON.stringify(posts));
+      renderPosts();
+      syncToGoogleSheet();
+    }
+
+    function syncToGoogleSheet() {
+      if (!googleSheetUrl) return;
+
+      const payload = {
+        posts: posts.map(p => ({
+          id: String(p.id),
+          title: String(p.title || ''),
+          category: getCategoryArray(p.category),
+          urgency: String(p.urgency || 'Normal'),
+          content: String(p.content || ''),
+          webLink: String(p.webLink || ''),
+          docLink: String(p.docLink || ''),
+          imgLink: String(p.imgLink || ''),
+          date: String(p.date || new Date().toISOString().split('T')[0]),
+          seenBy: Array.isArray(p.seenBy) ? p.seenBy : [],
+          targetPlayers: Array.isArray(p.targetPlayers) ? p.targetPlayers : [],
+          comments: Array.isArray(p.comments) ? p.comments : []
+        })),
+        nextGame: {
+          opponent: String(nextGameInfo.opponent || ''),
+          venue: String(nextGameInfo.venue || ''),
+          date: String(nextGameInfo.date || ''),
+          time: String(nextGameInfo.time || ''),
+          notes: String(nextGameInfo.notes || '')
+        },
+        lastUpdated: new Date().toISOString()
+      };
+
+      fetch(googleSheetUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(err => console.error('Sync error:', err));
+    }
+
+    function checkSyncStatus() {
+      const badge = document.getElementById('syncStatusBadge');
+      const urlInput = document.getElementById('googleSheetUrlInput');
+      if (urlInput) urlInput.value = googleSheetUrl;
+      
+      if (googleSheetUrl) {
+        badge.innerText = "Live Sync";
+        badge.className = "text-[9px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono";
+      } else {
+        badge.innerText = "Local Only";
+        badge.className = "text-[9px] px-2 py-0.5 rounded bg-obsidian-surface text-zinc-400 font-mono";
+      }
+    }
+
+    function saveGoogleSheetUrl() {
+      const input = document.getElementById('googleSheetUrlInput').value.trim();
+      googleSheetUrl = input || DEFAULT_GSHEET_URL;
+      localStorage.setItem('jlc_wolves_gsheet_url', googleSheetUrl);
+      checkSyncStatus();
+      loadData(true);
+    }
+
+    function populatePlayerDropdown() {
+      const select = document.getElementById('identityPlayerSelect');
+      select.innerHTML = '<option value="">-- Select Your Name --</option>';
+      PLAYERS.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        select.appendChild(opt);
+      });
+    }
+
+    function openIdentityModal() { document.getElementById('identityModal').classList.remove('hidden'); }
+    
+    function toggleParentPassInput() {
+      document.getElementById('parentPassContainer').classList.toggle('hidden');
+      document.getElementById('showParentPassBtn').classList.toggle('hidden');
+    }
+
+    function toggleCoachPassInput() {
+      document.getElementById('coachPassContainer').classList.toggle('hidden');
+      document.getElementById('showCoachPassBtn').classList.toggle('hidden');
+    }
+
+    function submitPlayerIdentity() {
+      const name = document.getElementById('identityPlayerSelect').value;
+      const pass = document.getElementById('identityPlayerPass').value.trim();
+
+      if (!name) return showToast('Please select your name.');
+      if (!pass) return showToast('Please enter your password.');
+
+      const expectedSurname = getPlayerSurname(name);
+
+      if (pass.toLowerCase() === expectedSurname.toLowerCase()) {
+        currentProfile = { role: 'player', name: name };
+        document.getElementById('identityPlayerPass').value = '';
+        completeIdentityLogin();
+      } else {
+        showToast('Incorrect password!');
+      }
+    }
+
+    function submitParentIdentity() {
+      const pass = document.getElementById('identityParentPass').value.trim();
+      if (pass.toLowerCase() === 'wolfpack26') {
+        currentProfile = { role: 'parent', name: 'Parent / Guardian' };
+        document.getElementById('identityParentPass').value = '';
+        completeIdentityLogin();
+      } else {
+        showToast('Incorrect password!');
+      }
+    }
+
+    function submitCoachIdentity() {
+      const pass = document.getElementById('identityCoachPass').value;
+      if (pass === 'coach123') {
+        currentProfile = { role: 'coach', name: 'Coach / Admin' };
+        completeIdentityLogin();
+      } else {
+        showToast('Incorrect Password!');
+      }
+    }
+
+    function completeIdentityLogin() {
+      document.getElementById('identityModal').classList.add('hidden');
+      updateHeaderBadge();
+      renderPosts();
+      showToast(`Welcome ${currentProfile.name}`);
+    }
+
+    function updateHeaderBadge() {
+      const coachBtn = document.getElementById('coachAdminBtn');
+      const statusLabel = document.getElementById('userStatusLabel');
+      
+      if (currentProfile.role === 'coach') {
+        coachBtn.classList.remove('hidden');
+        statusLabel.innerText = "Coach Mode";
+        statusLabel.className = "text-[10px] text-gold font-bold tracking-wider uppercase mt-0.5";
+      } else {
+        coachBtn.classList.add('hidden');
+        statusLabel.innerText = currentProfile.name || "JLC Wolves U16 Boys";
+        statusLabel.className = "text-[10px] text-zinc-400 font-semibold tracking-wider uppercase mt-0.5";
+      }
+    }
+
+    function parseDriveImageUrl(url) {
+      if (!url) return '';
+      if (url.includes('drive.google.com') && url.includes('/file/d/')) {
+        const fileId = url.split('/file/d/')[1].split('/')[0];
+        return `https://drive.google.com/uc?export=view&id=${fileId}`;
+      }
+      return url;
+    }
+
+    function getFilteredPosts() {
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+      return posts.filter(post => {
+        const catArr = getCategoryArray(post.category);
+        const matchesCategory = currentFilter === 'all' || catArr.includes(currentFilter);
+        const matchesSearch = post.title.toLowerCase().includes(searchQuery) || post.content.toLowerCase().includes(searchQuery);
+        const matchesUnseen = !unseenOnly || (currentProfile.role === 'player' && (!post.seenBy || !post.seenBy.includes(currentProfile.name)));
+        
+        let matchesAudience = true;
+        const targets = post.targetPlayers || [];
+        
+        if (currentProfile.role === 'player') {
+          if (targets.length > 0) {
+            matchesAudience = targets.includes(currentProfile.name);
+          }
+        } else if (currentProfile.role === 'parent') {
+          if (targets.length > 0) {
+            matchesAudience = false;
+          }
+        }
+
+        return matchesCategory && matchesSearch && matchesUnseen && matchesAudience;
+      });
+    }
+
+    function toggleViewMode() {
+      viewMode = viewMode === 'carousel' ? 'grid' : 'carousel';
+      const iconBtn = document.getElementById('viewModeIcon');
+      if (viewMode === 'carousel') {
+        iconBtn.innerHTML = `<svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>`;
+      } else {
+        iconBtn.innerHTML = `<svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>`;
+      }
+      renderPosts();
+    }
+
+    function navigateCarousel(direction) {
+      const filtered = getFilteredPosts();
+      if (filtered.length === 0) return;
+      currentCarouselIndex = (currentCarouselIndex + direction + filtered.length) % filtered.length;
+      renderPosts();
+    }
+
+    function jumpToCarouselIndex(idx) {
+      currentCarouselIndex = idx;
+      renderPosts();
+    }
+
+    function renderPosts() {
+      const displayArea = document.getElementById('displayArea');
+      const filtered = getFilteredPosts();
+
+      displayArea.innerHTML = '';
+
+      if (filtered.length === 0) {
+        displayArea.innerHTML = `
+          <div class="bg-obsidian-card border border-obsidian-border rounded-2xl p-6 text-center space-y-1.5 max-w-xs w-full">
+            <svg class="w-8 h-8 text-zinc-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+            <div class="text-xs font-bold text-zinc-400">No updates found</div>
+            <div class="text-[11px] text-zinc-600">Try adjusting your filters</div>
+          </div>
+        `;
+        return;
+      }
+
+      if (currentCarouselIndex >= filtered.length) {
+        currentCarouselIndex = 0;
+      }
+
+      if (viewMode === 'carousel') {
+        renderCarouselView(displayArea, filtered);
+      } else {
+        renderGridView(displayArea, filtered);
+      }
+    }
+
+    function addComment(postId) {
+      if (!currentProfile.name || currentProfile.role === 'parent') {
+        showToast('Only players and coaches can comment');
+        return;
+      }
+
+      const inputEl = document.getElementById(`commentInput-${postId}`);
+      if (!inputEl) return;
+      const text = inputEl.value.trim();
+      if (!text) return showToast('Please type a comment');
+
+      const post = posts.find(p => p.id === postId);
+      if (!post) return;
+
+      if (!post.comments) post.comments = [];
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dateStr = now.toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+      post.comments.push({
+        id: 'comment-' + Date.now(),
+        author: currentProfile.name,
+        role: currentProfile.role,
+        text: text,
+        timestamp: `${dateStr}, ${timeStr}`
+      });
+
+      saveData();
+      showToast('Comment posted!');
+    }
+
+    function createPostCardElement(post, totalPlayers) {
+      const targets = post.targetPlayers || [];
+      const isTargeted = targets.length > 0;
+      
+      const effectiveTotalPlayers = isTargeted ? targets.length : totalPlayers;
+      const seenCount = post.seenBy ? post.seenBy.filter(p => !isTargeted || targets.includes(p)).length : 0;
+      
+      const isAcknowledged = currentProfile.role === 'player' && post.seenBy && post.seenBy.includes(currentProfile.name);
+      const isUnseenByPlayer = currentProfile.role === 'player' && !isAcknowledged;
+      const parsedImg = parseDriveImageUrl(post.imgLink);
+      
+      const catArr = getCategoryArray(post.category);
+      const catBadgesHtml = catArr.map(c => `
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${getCategoryBadgeClass(c)}">
+          ${c}
+        </span>
+      `).join('');
+
+      let urgencyStrip = '';
+      let borderGlowClass = "border-obsidian-border";
+
+      if (post.urgency === 'Urgent') {
+        urgencyStrip = '<div class="h-1.5 w-full bg-gradient-to-r from-red-600 via-rose-500 to-red-600 shrink-0"></div>';
+        borderGlowClass = isUnseenByPlayer ? "urgent-glow" : "border-red-900/60";
+      } else if (post.urgency === 'Important') {
+        urgencyStrip = '<div class="h-1.5 w-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 shrink-0"></div>';
+        borderGlowClass = isUnseenByPlayer ? "gold-glow" : "border-amber-900/60";
+      } else if (isUnseenByPlayer) {
+        borderGlowClass = "gold-glow";
+      }
+
+      let targetedBadgeHtml = '';
+      if (isTargeted) {
+        const targetLabel = targets.length === 1 ? `DIRECT: ${targets[0]}` : `TARGETED (${targets.length})`;
+        targetedBadgeHtml = `
+          <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-indigo-950 text-indigo-300 border border-indigo-800/80 flex items-center gap-1 shadow-sm" title="${targets.join(', ')}">
+            <svg class="w-2.5 h-2.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            <span>${targetLabel}</span>
+          </span>
+        `;
+      }
+
+      const comments = post.comments || [];
+      const commentsListHtml = comments.map(c => `
+        <div class="bg-obsidian-surface border border-obsidian-border/80 rounded-xl p-2 space-y-0.5">
+          <div class="flex items-center justify-between text-[10px]">
+            <span class="font-bold text-gold">${c.author}</span>
+            <span class="text-[9px] text-zinc-500 font-mono">${c.timestamp || ''}</span>
+          </div>
+          <p class="text-xs text-zinc-300 leading-normal">${c.text}</p>
+        </div>
+      `).join('');
+
+      const canComment = currentProfile.role === 'player' || currentProfile.role === 'coach';
+      const commentInputHtml = canComment ? `
+        <div class="flex items-center gap-1.5 pt-1">
+          <input type="text" id="commentInput-${post.id}" placeholder="Write a comment..." onkeydown="if(event.key==='Enter') addComment('${post.id}')" class="flex-1 bg-obsidian border border-obsidian-border rounded-xl px-3 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-gold h-9">
+          <button onclick="addComment('${post.id}')" class="bg-gold active:bg-gold-dark text-slate-950 font-extrabold px-3 py-1.5 rounded-xl text-xs transition h-9 uppercase tracking-wider shrink-0">
+            Post
+          </button>
+        </div>
+      ` : '';
+
+      const commentsSectionHtml = `
+        <div class="space-y-2 pt-2 border-t border-obsidian-border/60">
+          <div class="flex items-center justify-between text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span>Comments (${comments.length})</span>
+          </div>
+          <div class="space-y-1.5 max-h-32 overflow-y-auto custom-scrollbar">
+            ${comments.length > 0 ? commentsListHtml : '<div class="text-[10px] text-zinc-600 italic py-0.5">No comments yet.</div>'}
+          </div>
+          ${commentInputHtml}
+        </div>
+      `;
+
+      const card = document.createElement('div');
+      const baseClasses = "portrait-card bg-obsidian-card border rounded-3xl shadow-2xl flex flex-col justify-between overflow-hidden transition-all duration-300 relative";
+
+      card.className = `${baseClasses} ${borderGlowClass}`;
+
+      card.innerHTML = `
+        ${urgencyStrip}
+
+        <div class="p-3.5 border-b border-obsidian-border/80 bg-obsidian/60 flex items-center justify-between gap-2 shrink-0">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            ${catBadgesHtml}
+            ${targetedBadgeHtml}
+            ${post.urgency === 'Urgent' ? `
+              <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-red-950 text-red-400 border border-red-800">
+                URGENT
+              </span>
+            ` : ''}
+            ${post.urgency === 'Important' ? `
+              <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-amber-950 text-amber-400 border border-amber-800">
+                IMPORTANT
+              </span>
+            ` : ''}
+            ${isUnseenByPlayer ? `
+              <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-amber-950/90 text-gold border border-gold/50 flex items-center gap-1 shadow-[0_0_10px_rgba(221,175,111,0.2)]">
+                UNSEEN
+              </span>
+            ` : ''}
+          </div>
+          <span class="text-[10px] text-zinc-500 font-mono shrink-0">${post.date}</span>
+        </div>
+
+        <div class="p-4 sm:p-5 flex-1 overflow-y-auto space-y-3 custom-scrollbar">
+          <h3 class="text-lg font-bold text-white leading-snug">${post.title}</h3>
+          
+          <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed whitespace-pre-line">${post.content}</p>
+
+          ${parsedImg ? `
+            <div class="mt-2 rounded-2xl overflow-hidden border border-obsidian-border max-h-44 cursor-pointer" onclick="openImageModal('${parsedImg}')">
+              <img src="${parsedImg}" class="w-full h-full object-cover" alt="Attachment Image">
+            </div>
+          ` : ''}
+
+          <div class="flex flex-wrap items-center gap-2 pt-1">
+            ${post.webLink ? `
+              <a href="${post.webLink}" target="_blank" class="inline-flex items-center gap-1.5 text-xs text-gold hover:underline font-semibold bg-obsidian px-3 py-1.5 rounded-xl border border-obsidian-border">
+                <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                <span>Link</span>
+              </a>
+            ` : ''}
+            ${post.docLink ? `
+              <a href="${post.docLink}" target="_blank" class="inline-flex items-center gap-1.5 text-xs text-sky-400 hover:underline font-semibold bg-obsidian px-3 py-1.5 rounded-xl border border-obsidian-border">
+                <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span>Document</span>
+              </a>
+            ` : ''}
+          </div>
+
+          ${commentsSectionHtml}
+        </div>
+
+        <div class="p-4 border-t border-obsidian-border/80 bg-obsidian/80 space-y-2.5 shrink-0">
+          
+          <div class="space-y-1">
+            <div class="flex justify-between text-[10px] font-semibold text-zinc-400">
+              <span>Seen Status</span>
+              <span class="text-gold font-mono font-bold">${seenCount} / ${effectiveTotalPlayers} ${isTargeted ? 'Targeted' : 'Players'}</span>
+            </div>
+            <div class="w-full bg-obsidian rounded-full h-1.5 overflow-hidden border border-obsidian-border">
+              <div class="bg-gold h-full transition-all duration-500" style="width: ${(seenCount / effectiveTotalPlayers) * 100}%"></div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-2">
+            ${currentProfile.role === 'player' ? `
+              <button onclick="toggleAcknowledge('${post.id}')" class="w-full ${isAcknowledged ? 'bg-emerald-950 text-emerald-300 border-emerald-700' : 'bg-gold active:bg-gold-dark text-slate-950 border-gold font-extrabold shadow-[0_0_15px_rgba(221,175,111,0.3)]'} border py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 h-11 uppercase tracking-wider">
+                ${isAcknowledged ? 'Marked as Seen' : 'Mark as Seen'}
+              </button>
+            ` : `
+              <div class="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider truncate max-w-[140px]" title="${isTargeted ? 'Target: ' + targets.join(', ') : 'All Players'}">
+                ${isTargeted ? '🔒 ' + targets.join(', ') : (currentProfile.role === 'coach' ? 'Coach Mode' : 'Parent View')}
+              </div>
+            `}
+
+            ${currentProfile.role === 'coach' ? `
+              <div class="flex items-center gap-1 shrink-0">
+                <button onclick="openEditPostModal('${post.id}')" class="text-amber-400 text-xs px-2.5 py-2 rounded-xl bg-amber-950/40 border border-amber-900/50 font-semibold transition h-9">
+                  Edit
+                </button>
+                <button onclick="confirmDeletePost('${post.id}')" class="text-red-400 text-xs px-2.5 py-2 rounded-xl bg-red-950/40 border border-red-900/50 transition h-9">
+                  Delete
+                </button>
+              </div>
+            ` : ''}
+          </div>
+
+        </div>
+      `;
+
+      return card;
+    }
+
+    function renderCarouselView(container, filtered) {
+      const activePost = filtered[currentCarouselIndex];
+      const totalPlayers = PLAYERS.length;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = "flex flex-col items-center gap-3 w-full";
+
+      const carouselContainer = document.createElement('div');
+      carouselContainer.className = "flex items-center justify-center gap-2 w-full max-w-xl px-1";
+
+      const prevBtn = document.createElement('button');
+      prevBtn.onclick = () => navigateCarousel(-1);
+      prevBtn.className = "bg-obsidian-surface active:bg-gold active:text-slate-950 text-zinc-300 w-7 h-9 rounded-xl border border-obsidian-border transition flex items-center justify-center font-bold text-xs shrink-0 shadow-lg";
+      prevBtn.innerHTML = `&#9664;`;
+
+      const cardWrapper = document.createElement('div');
+      cardWrapper.className = "w-full flex justify-center";
+      cardWrapper.ontouchstart = (e) => { touchStartX = e.changedTouches[0].screenX; };
+      cardWrapper.ontouchend = (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        if (touchStartX - touchEndX > 35) navigateCarousel(1);
+        if (touchEndX - touchStartX > 35) navigateCarousel(-1);
+      };
+
+      const cardElement = createPostCardElement(activePost, totalPlayers);
+      cardWrapper.appendChild(cardElement);
+
+      const nextBtn = document.createElement('button');
+      nextBtn.onclick = () => navigateCarousel(1);
+      nextBtn.className = "bg-obsidian-surface active:bg-gold active:text-slate-950 text-zinc-300 w-7 h-9 rounded-xl border border-obsidian-border transition flex items-center justify-center font-bold text-xs shrink-0 shadow-lg";
+      nextBtn.innerHTML = `&#9654;`;
+
+      carouselContainer.appendChild(prevBtn);
+      carouselContainer.appendChild(cardWrapper);
+      carouselContainer.appendChild(nextBtn);
+
+      const indicatorBar = document.createElement('div');
+      indicatorBar.className = "flex flex-col items-center gap-1.5";
+
+      const counterBadge = document.createElement('span');
+      counterBadge.className = "text-[10px] font-mono font-bold text-zinc-400 bg-obsidian-surface px-3 py-0.5 rounded-full border border-obsidian-border";
+      counterBadge.innerText = `${currentCarouselIndex + 1} of ${filtered.length}`;
+
+      const dotsContainer = document.createElement('div');
+      dotsContainer.className = "flex items-center gap-1.5 flex-wrap justify-center max-w-xs";
+
+      filtered.forEach((_, idx) => {
+        const dot = document.createElement('button');
+        dot.onclick = () => jumpToCarouselIndex(idx);
+        dot.className = idx === currentCarouselIndex 
+          ? "w-2.5 h-2.5 rounded-full bg-gold shadow-[0_0_8px_rgba(221,175,111,0.8)] transition-all"
+          : "w-2 h-2 rounded-full bg-obsidian-border transition-all";
+        dotsContainer.appendChild(dot);
+      });
+
+      indicatorBar.appendChild(counterBadge);
+      indicatorBar.appendChild(dotsContainer);
+
+      wrapper.appendChild(carouselContainer);
+      wrapper.appendChild(indicatorBar);
+
+      container.appendChild(wrapper);
+    }
+
+    function renderGridView(container, filtered) {
+      const grid = document.createElement('div');
+      grid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full justify-items-center";
+
+      filtered.forEach(post => {
+        const cardElement = createPostCardElement(post, PLAYERS.length);
+        grid.appendChild(cardElement);
+      });
+
+      container.appendChild(grid);
+    }
+
+    function toggleAcknowledge(postId) {
+      if (currentProfile.role !== 'player' || !currentProfile.name) return;
+      const post = posts.find(p => p.id === postId);
+      if (!post) return;
+
+      if (!post.seenBy) post.seenBy = [];
+      const idx = post.seenBy.indexOf(currentProfile.name);
+      if (idx > -1) {
+        post.seenBy.splice(idx, 1);
+        showToast('Notice unmarked');
+      } else {
+        post.seenBy.push(currentProfile.name);
+        showToast('Marked as seen');
+      }
+      saveData();
+    }
+
+    function setFilter(cat) {
+      currentFilter = cat;
+      currentCarouselIndex = 0;
+      
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('bg-gold', 'text-slate-950', 'shadow-md');
+        btn.classList.add('bg-obsidian-surface');
+      });
+
+      const activeBtn = document.getElementById(`filter-${cat}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-obsidian-surface');
+        activeBtn.classList.add('bg-gold', 'text-slate-950', 'shadow-md');
+      }
+
+      renderPosts();
+    }
+
+    function toggleUnseenOnly() {
+      unseenOnly = !unseenOnly;
+      currentCarouselIndex = 0;
+      const btn = document.getElementById('unseenOnlyBtn');
+      btn.className = unseenOnly 
+        ? "bg-gold text-slate-950 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition h-10 uppercase tracking-wider"
+        : "bg-obsidian-surface border border-obsidian-border text-zinc-400 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition h-10 uppercase tracking-wider";
+      renderPosts();
+    }
+
+    function toggleModalCategory(cat) {
+      const idx = selectedModalCategories.indexOf(cat);
+      if (idx > -1) {
+        if (selectedModalCategories.length > 1) {
+          selectedModalCategories.splice(idx, 1);
+        } else {
+          showToast('Select at least one topic');
+        }
+      } else {
+        selectedModalCategories.push(cat);
+      }
+      renderModalCategories();
+    }
+
+    function renderModalCategories() {
+      VALID_CATEGORIES.forEach(cat => {
+        const btn = document.getElementById(`catBtn-${cat}`);
+        if (btn) {
+          if (selectedModalCategories.includes(cat)) {
+            btn.className = `modal-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold border ${getCategoryBadgeClass(cat)} transition shadow-md`;
+          } else {
+            btn.className = "modal-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold border border-obsidian-border bg-obsidian-surface text-zinc-400 transition";
+          }
+        }
+      });
+    }
+
+    function setTargetMode(mode) {
+      const allBtn = document.getElementById('targetModeAllBtn');
+      const specificBtn = document.getElementById('targetModeSpecificBtn');
+      const container = document.getElementById('targetPlayersContainer');
+
+      if (mode === 'all') {
+        selectedTargetPlayers = [];
+        allBtn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition bg-gold text-slate-950";
+        specificBtn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition text-zinc-400";
+        container.classList.add('hidden');
+      } else {
+        allBtn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition text-zinc-400";
+        specificBtn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition bg-indigo-600 text-white";
+        container.classList.remove('hidden');
+        renderPlayerPills();
+      }
+    }
+
+    function toggleTargetPlayer(playerName) {
+      const idx = selectedTargetPlayers.indexOf(playerName);
+      if (idx > -1) {
+        selectedTargetPlayers.splice(idx, 1);
+      } else {
+        selectedTargetPlayers.push(playerName);
+      }
+      renderPlayerPills();
+    }
+
+    function renderPlayerPills() {
+      const grid = document.getElementById('playerPillsGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      PLAYERS.forEach(player => {
+        const isSelected = selectedTargetPlayers.includes(player);
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.onclick = () => toggleTargetPlayer(player);
+        pill.className = isSelected
+          ? "px-2.5 py-1 rounded-xl text-[10px] font-bold border bg-indigo-900/80 text-indigo-200 border-indigo-500 transition shadow-sm"
+          : "px-2.5 py-1 rounded-xl text-[10px] font-semibold border bg-obsidian-surface text-zinc-400 border-obsidian-border hover:border-zinc-700 transition";
+        pill.innerText = player;
+        grid.appendChild(pill);
+      });
+    }
+
+    function openCoachPanel() { document.getElementById('coachModal').classList.remove('hidden'); }
+    function closeCoachPanel() { document.getElementById('coachModal').classList.add('hidden'); }
+    
+    function openNewPostModal() { 
+      editingPostId = null;
+      selectedModalCategories = ['General'];
+      selectedTargetPlayers = [];
+      setTargetMode('all');
+      renderModalCategories();
+      document.getElementById('modalTitle').innerText = "Create New Notice";
+      document.getElementById('savePostBtn').innerText = "Publish";
+      document.getElementById('newPostForm').reset();
+      document.getElementById('newPostModal').classList.remove('hidden'); 
+    }
+
+    function openEditPostModal(postId) {
+      const post = posts.find(p => p.id === postId);
+      if (!post) return;
+
+      editingPostId = postId;
+      document.getElementById('modalTitle').innerText = "Edit Notice";
+      document.getElementById('savePostBtn').innerText = "Save & Reset Reactions";
+
+      document.getElementById('postTitle').value = post.title || '';
+      selectedModalCategories = getCategoryArray(post.category);
+      renderModalCategories();
+
+      selectedTargetPlayers = Array.isArray(post.targetPlayers) ? [...post.targetPlayers] : [];
+      if (selectedTargetPlayers.length > 0) {
+        setTargetMode('specific');
+      } else {
+        setTargetMode('all');
+      }
+
+      document.getElementById('postUrgency').value = post.urgency || 'Normal';
+      document.getElementById('postContent').value = post.content || '';
+      document.getElementById('postWebLink').value = post.webLink || '';
+      document.getElementById('postDocLink').value = post.docLink || '';
+      document.getElementById('postImgLink').value = post.imgLink || '';
+
+      document.getElementById('newPostModal').classList.remove('hidden');
+    }
+
+    function closeNewPostModal() { 
+      editingPostId = null;
+      document.getElementById('newPostForm').reset();
+      document.getElementById('newPostModal').classList.add('hidden'); 
+    }
+
+    function handleSavePost(e) {
+      e.preventDefault();
+      
+      const catArray = [...selectedModalCategories];
+      const targetArray = [...selectedTargetPlayers];
+
+      if (editingPostId) {
+        const post = posts.find(p => p.id === editingPostId);
+        if (post) {
+          post.title = document.getElementById('postTitle').value;
+          post.category = catArray;
+          post.urgency = document.getElementById('postUrgency').value;
+          post.content = document.getElementById('postContent').value;
+          post.webLink = document.getElementById('postWebLink').value;
+          post.docLink = document.getElementById('postDocLink').value;
+          post.imgLink = document.getElementById('postImgLink').value;
+          post.targetPlayers = targetArray;
+          post.seenBy = [];
+        }
+        showToast('Notice updated!');
+      } else {
+        const newPost = {
+          id: 'post-' + Date.now(),
+          title: document.getElementById('postTitle').value,
+          category: catArray,
+          urgency: document.getElementById('postUrgency').value,
+          content: document.getElementById('postContent').value,
+          webLink: document.getElementById('postWebLink').value,
+          docLink: document.getElementById('postDocLink').value,
+          imgLink: document.getElementById('postImgLink').value,
+          date: new Date().toISOString().split('T')[0],
+          seenBy: [],
+          targetPlayers: targetArray,
+          comments: []
+        };
+        posts.unshift(newPost);
+        showToast('Notice published!');
+      }
+
+      saveData();
+      closeNewPostModal();
+      closeCoachPanel();
+    }
+
+    function confirmDeletePost(id) {
+      postToDeleteId = id;
+      const modal = document.getElementById('deleteConfirmModal');
+      const confirmBtn = document.getElementById('confirmDeleteBtn');
+      confirmBtn.onclick = () => { executeDeletePost(); };
+      modal.classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+      postToDeleteId = null;
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+    }
+
+    function executeDeletePost() {
+      if (!postToDeleteId) return;
+      posts = posts.filter(p => p.id !== postToDeleteId);
+      saveData();
+      closeDeleteModal();
+      showToast('Notice deleted');
+    }
+
+    function openComplianceModal() {
+      const tbody = document.getElementById('complianceTableBody');
+      tbody.innerHTML = '';
+
+      PLAYERS.forEach(player => {
+        const relevantPosts = posts.filter(p => !p.targetPlayers || p.targetPlayers.length === 0 || p.targetPlayers.includes(player));
+        const total = relevantPosts.length;
+        const seen = relevantPosts.filter(p => p.seenBy && p.seenBy.includes(player)).length;
+        const pct = total > 0 ? Math.round((seen / total) * 100) : 100;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-obsidian-surface/60";
+        tr.innerHTML = `
+          <td class="p-2.5 font-semibold text-white">${player}</td>
+          <td class="p-2.5 text-center">${seen}/${total}</td>
+          <td class="p-2.5 text-center font-mono font-bold text-gold">${pct}%</td>
+          <td class="p-2.5">
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold ${pct >= 80 ? 'bg-emerald-950 text-emerald-400' : 'bg-amber-950 text-amber-400'}">
+              ${pct >= 80 ? 'OK' : 'Pending'}
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('complianceModal').classList.remove('hidden');
+    }
+
+    function closeComplianceModal() { document.getElementById('complianceModal').classList.add('hidden'); }
+    function openImageModal(src) {
+      document.getElementById('imagePreviewImg').src = src;
+      document.getElementById('imagePreviewModal').classList.remove('hidden');
+    }
+    function closeImageModal() { document.getElementById('imagePreviewModal').classList.add('hidden'); }
+  </script>
+</body>
+</html>
