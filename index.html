@@ -71,6 +71,24 @@
       width: 100%;
       max-width: 480px;
       height: clamp(460px, 75vh, 560px);
+      touch-action: pan-y;
+      will-change: transform, opacity;
+    }
+
+    /* CAROUSEL SLIDE ANIMATIONS */
+    @keyframes slideInRight {
+      from { transform: translateX(50px) scale(0.95); opacity: 0; }
+      to { transform: translateX(0) scale(1); opacity: 1; }
+    }
+    @keyframes slideInLeft {
+      from { transform: translateX(-50px) scale(0.95); opacity: 0; }
+      to { transform: translateX(0) scale(1); opacity: 1; }
+    }
+    .card-slide-in-right {
+      animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .card-slide-in-left {
+      animation: slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
   </style>
 </head>
@@ -526,8 +544,7 @@
 
     let viewMode = 'carousel';
     let currentCarouselIndex = 0;
-    let touchStartX = 0;
-    let touchEndX = 0;
+    let carouselDirection = 1; // 1 for right/next, -1 for left/prev
 
     window.addEventListener('DOMContentLoaded', () => {
       populatePlayerDropdown();
@@ -961,13 +978,42 @@
     function navigateCarousel(direction) {
       const filtered = getFilteredPosts();
       if (filtered.length === 0) return;
-      currentCarouselIndex = (currentCarouselIndex + direction + filtered.length) % filtered.length;
-      renderPosts();
+      carouselDirection = direction;
+
+      const activeCard = document.querySelector('.portrait-card');
+      if (activeCard && viewMode === 'carousel') {
+        activeCard.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
+        activeCard.style.transform = `translateX(${direction === 1 ? -120 : 120}px) scale(0.92)`;
+        activeCard.style.opacity = '0';
+
+        setTimeout(() => {
+          currentCarouselIndex = (currentCarouselIndex + direction + filtered.length) % filtered.length;
+          renderPosts();
+        }, 180);
+      } else {
+        currentCarouselIndex = (currentCarouselIndex + direction + filtered.length) % filtered.length;
+        renderPosts();
+      }
     }
 
     function jumpToCarouselIndex(idx) {
-      currentCarouselIndex = idx;
-      renderPosts();
+      if (idx === currentCarouselIndex) return;
+      carouselDirection = idx > currentCarouselIndex ? 1 : -1;
+      
+      const activeCard = document.querySelector('.portrait-card');
+      if (activeCard && viewMode === 'carousel') {
+        activeCard.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
+        activeCard.style.transform = `translateX(${carouselDirection === 1 ? -120 : 120}px) scale(0.92)`;
+        activeCard.style.opacity = '0';
+
+        setTimeout(() => {
+          currentCarouselIndex = idx;
+          renderPosts();
+        }, 180);
+      } else {
+        currentCarouselIndex = idx;
+        renderPosts();
+      }
     }
 
     function renderPosts() {
@@ -1152,7 +1198,7 @@
       `;
 
       const card = document.createElement('div');
-      const baseClasses = "portrait-card bg-obsidian-card border rounded-3xl shadow-2xl flex flex-col justify-between overflow-hidden transition-all duration-300 relative";
+      const baseClasses = "portrait-card bg-obsidian-card border rounded-3xl shadow-2xl flex flex-col justify-between overflow-hidden relative";
 
       card.className = `${baseClasses} ${borderGlowClass}`;
 
@@ -1269,14 +1315,59 @@
 
       const cardWrapper = document.createElement('div');
       cardWrapper.className = "w-full flex justify-center";
-      cardWrapper.ontouchstart = (e) => { touchStartX = e.changedTouches[0].screenX; };
-      cardWrapper.ontouchend = (e) => {
-        touchEndX = e.changedTouches[0].screenX;
-        if (touchStartX - touchEndX > 35) navigateCarousel(1);
-        if (touchEndX - touchStartX > 35) navigateCarousel(-1);
-      };
 
       const cardElement = createPostCardElement(activePost, totalPlayers);
+      
+      // Apply entrance animation class
+      const slideAnimClass = carouselDirection === 1 ? 'card-slide-in-right' : 'card-slide-in-left';
+      cardElement.classList.add(slideAnimClass);
+
+      // TOUCH / INTERACTIVE SWIPE DRAG CONTROLLER
+      let isDragging = false;
+      let startX = 0;
+      let currentDeltaX = 0;
+
+      cardWrapper.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startX = e.touches[0].clientX;
+        currentDeltaX = 0;
+        cardElement.style.transition = 'none';
+        cardElement.classList.remove('card-slide-in-right', 'card-slide-in-left');
+      }, { passive: true });
+
+      cardWrapper.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const currentX = e.touches[0].clientX;
+        currentDeltaX = currentX - startX;
+        
+        // Fluid finger-following drag with dynamic slight rotation
+        const rotate = currentDeltaX * 0.04;
+        cardElement.style.transform = `translateX(${currentDeltaX}px) rotate(${rotate}deg)`;
+        cardElement.style.opacity = `${Math.max(0.4, 1 - Math.abs(currentDeltaX) / 400)}`;
+      }, { passive: true });
+
+      cardWrapper.addEventListener('touchend', () => {
+        if (!isDragging) return;
+        isDragging = false;
+
+        // If swiped far enough (> 60px), trigger navigation
+        if (Math.abs(currentDeltaX) > 60) {
+          const dir = currentDeltaX < 0 ? 1 : -1;
+          cardElement.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
+          cardElement.style.transform = `translateX(${currentDeltaX < 0 ? -300 : 300}px) rotate(${currentDeltaX < 0 ? -12 : 12}deg)`;
+          cardElement.style.opacity = '0';
+
+          setTimeout(() => {
+            navigateCarousel(dir);
+          }, 180);
+        } else {
+          // Spring snap back to center
+          cardElement.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease';
+          cardElement.style.transform = 'translateX(0px) rotate(0deg)';
+          cardElement.style.opacity = '1';
+        }
+      });
+
       cardWrapper.appendChild(cardElement);
 
       const nextBtn = document.createElement('button');
