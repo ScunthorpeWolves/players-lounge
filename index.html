@@ -120,7 +120,7 @@
       <div class="flex items-center gap-1.5">
         
         <!-- Reflection Log External Button -->
-        <a href="https://scunthorpewolves.github.io/reflection/index.html" target="_blank" rel="noopener noreferrer" class="bg-obsidian-card active:bg-zinc-800 text-zinc-300 px-3 py-2 rounded-xl text-xs font-semibold border border-obsidian-border hover:border-gold/50 transition shadow flex items-center gap-1.5 h-9" title="Open Reflection Log">
+        <a href="https://scunthorpewolves.github.io/reflection/" target="_blank" rel="noopener noreferrer" class="bg-obsidian-card active:bg-zinc-800 text-zinc-300 px-3 py-2 rounded-xl text-xs font-semibold border border-obsidian-border hover:border-gold/50 transition shadow flex items-center gap-1.5 h-9" title="Open Reflection Log">
           <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
           </svg>
@@ -162,21 +162,21 @@
             </span>
           </div>
           <div class="text-xs sm:text-sm font-bold text-white font-mono flex items-center gap-1.5">
-            <span id="nextGameDate">Sat, Oct 24</span>
+            <span id="nextGameDate">TBD</span>
             <span>&bull;</span>
-            <span id="nextGameTime" class="text-gold">11:00 AM</span>
+            <span id="nextGameTime" class="text-gold">TBD</span>
           </div>
         </div>
 
         <div>
           <h2 id="nextGameOpponent" class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-wider text-white uppercase leading-none">
-            VS SCUNTHORPE KNIGHTS
+            MATCH DETAILS LOADING
           </h2>
           <div class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gold mt-1.5">
             <svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            <span id="nextGameVenue" class="text-zinc-200 truncate">Scunthorpe Sports Hall (DN16 1AA)</span>
+            <span id="nextGameVenue" class="text-zinc-200 truncate">Venue TBD</span>
           </div>
-          <p id="nextGameNotes" class="text-xs sm:text-sm text-zinc-400 mt-1 leading-relaxed">Arrive 45 mins prior for warm-ups. Full blue kit required.</p>
+          <p id="nextGameNotes" class="text-xs sm:text-sm text-zinc-400 mt-1 leading-relaxed">Check back soon for fixture updates.</p>
         </div>
       </div>
     </div>
@@ -508,11 +508,11 @@
     const DEFAULT_GSHEET_URL = "https://script.google.com/macros/s/AKfycbyJKTH0YGIFR2yDGa0C29bq0wzM6ie6fY3Y_GBsv8WY_nZ0AtEms0bWVmGfD5Oc8pMh5Q/exec";
 
     let nextGameInfo = {
-      opponent: "VS SCUNTHORPE KNIGHTS",
-      venue: "Scunthorpe Sports Hall (DN16 1AA)",
-      date: "Sat, Oct 24",
-      time: "11:00 AM",
-      notes: "Arrive 45 mins prior for warm-ups. Full blue kit required."
+      opponent: "",
+      venue: "",
+      date: "",
+      time: "",
+      notes: ""
     };
 
     const INITIAL_POSTS = [
@@ -544,7 +544,8 @@
 
     let viewMode = 'carousel';
     let currentCarouselIndex = 0;
-    let carouselDirection = 1; // 1 for right/next, -1 for left/prev
+    let carouselDirection = 1;
+    let isDataLoaded = false; // Guard flag to prevent premature sync writes
 
     window.addEventListener('DOMContentLoaded', () => {
       populatePlayerDropdown();
@@ -651,18 +652,18 @@
       const dateEl = document.getElementById('nextGameDate');
       const timeEl = document.getElementById('nextGameTime');
 
-      if (dateEl) dateEl.innerText = parseFixtureDate(nextGameInfo.date);
-      if (timeEl) timeEl.innerText = parseFixtureTime(nextGameInfo.time);
+      if (dateEl) dateEl.innerText = parseFixtureDate(nextGameInfo.date) || 'TBD';
+      if (timeEl) timeEl.innerText = parseFixtureTime(nextGameInfo.time) || 'TBD';
 
-      document.getElementById('nextGameOpponent').innerText = nextGameInfo.opponent;
-      document.getElementById('nextGameVenue').innerText = nextGameInfo.venue || "Location TBD";
-      document.getElementById('nextGameNotes').innerText = nextGameInfo.notes;
+      document.getElementById('nextGameOpponent').innerText = nextGameInfo.opponent || 'NO MATCH SCHEDULED';
+      document.getElementById('nextGameVenue').innerText = nextGameInfo.venue || "Venue TBD";
+      document.getElementById('nextGameNotes').innerText = nextGameInfo.notes || "Check back soon for match updates.";
 
-      document.getElementById('editOpponent').value = nextGameInfo.opponent;
+      document.getElementById('editOpponent').value = nextGameInfo.opponent || "";
       document.getElementById('editVenue').value = nextGameInfo.venue || "";
-      document.getElementById('editGameDate').value = nextGameInfo.date;
-      document.getElementById('editGameTime').value = nextGameInfo.time;
-      document.getElementById('editGameNotes').value = nextGameInfo.notes;
+      document.getElementById('editGameDate').value = nextGameInfo.date || "";
+      document.getElementById('editGameTime').value = nextGameInfo.time || "";
+      document.getElementById('editGameNotes').value = nextGameInfo.notes || "";
 
       updateMatchCountdown();
     }
@@ -741,7 +742,7 @@
           .then(res => res.json())
           .then(data => {
             if (data) {
-              if (data.nextGame && typeof data.nextGame === 'object' && data.nextGame.opponent) {
+              if (data.nextGame && typeof data.nextGame === 'object') {
                 nextGameInfo = {
                   opponent: String(data.nextGame.opponent || ''),
                   venue: String(data.nextGame.venue || ''),
@@ -772,20 +773,26 @@
                 renderPosts();
               }
 
+              isDataLoaded = true; // Safe to allow sync writes
               if (isForced) showToast("Live Sync Complete!");
             }
           })
           .catch(err => {
             console.error('Fetch error:', err);
-            showToast("Connection Error - Check Deployment");
+            isDataLoaded = true; // Fallback to local mode
+            showToast("Connection Error - Local Version Loaded");
           });
+      } else {
+        isDataLoaded = true;
       }
     }
 
     function saveData() {
       localStorage.setItem('jlc_wolves_posts', JSON.stringify(posts));
       renderPosts();
-      syncToGoogleSheet();
+      if (isDataLoaded) {
+        syncToGoogleSheet();
+      }
     }
 
     function syncToGoogleSheet() {
@@ -1318,11 +1325,9 @@
 
       const cardElement = createPostCardElement(activePost, totalPlayers);
       
-      // Apply entrance animation class
       const slideAnimClass = carouselDirection === 1 ? 'card-slide-in-right' : 'card-slide-in-left';
       cardElement.classList.add(slideAnimClass);
 
-      // TOUCH / INTERACTIVE SWIPE DRAG CONTROLLER
       let isDragging = false;
       let startX = 0;
       let currentDeltaX = 0;
@@ -1340,7 +1345,6 @@
         const currentX = e.touches[0].clientX;
         currentDeltaX = currentX - startX;
         
-        // Fluid finger-following drag with dynamic slight rotation
         const rotate = currentDeltaX * 0.04;
         cardElement.style.transform = `translateX(${currentDeltaX}px) rotate(${rotate}deg)`;
         cardElement.style.opacity = `${Math.max(0.4, 1 - Math.abs(currentDeltaX) / 400)}`;
@@ -1350,7 +1354,6 @@
         if (!isDragging) return;
         isDragging = false;
 
-        // If swiped far enough (> 60px), trigger navigation
         if (Math.abs(currentDeltaX) > 60) {
           const dir = currentDeltaX < 0 ? 1 : -1;
           cardElement.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
@@ -1361,7 +1364,6 @@
             navigateCarousel(dir);
           }, 180);
         } else {
-          // Spring snap back to center
           cardElement.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease';
           cardElement.style.transform = 'translateX(0px) rotate(0deg)';
           cardElement.style.opacity = '1';
